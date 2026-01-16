@@ -5,8 +5,10 @@
 	- [1.1. VM Creation](#11-vm-creation)
 	- [1.2. Installation](#12-installation)
 	- [1.3. VM Setup](#14-vm-setup)
-		- [1.3.1. Add User as Sudo](#141-add-user-as-sudo)
-		- [1.3.2. Shared Clipboard and Folders](#142-shared-clipboard-and-folders)
+		- [1.3.1. Add User as Sudo](#131-add-user-as-sudo)
+		- [1.3.2. Shared Clipboard and Folders](#132-shared-clipboard-and-folders)
+		- [1.3.3. Install Docker](#133-install-docker)
+		- [1.3.4. Install make and hostsed](#134-install-make-and-hostsed)
 
 ## 1. The VM
 
@@ -98,3 +100,63 @@ sudo chown -R your_user:users /media/ # Fix permissions for the media folder
 sudo reboot
 ```
 6.Logout and login again to apply the changes. Now, you can see the shared folder in the /media folder as an external device. ls /media You should see a folder starting with sf_ (for example, sf_shared). If you see it, you are officially "connected" to your Ubuntu host!
+
+#### 1.3.3. Install Docker
+
+Prepare the docker repository installation.
+
+Since Debian is a very stable and secure OS, it doesn't trust just any software you download from the internet. You have to prove to Debian that the Docker files are authentic.
+
+#### Add Docker's official GPG key:
+```bash
+sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg
+```
+
+#### The "Security Guard" (GPG Key)
+Docker "signs" its software with a digital signature (GPG key).
+```bash
+sudo install -m 0755 -d /etc/apt/keyrings # Creates a secure folder to store these signatures.
+
+# Downloads Docker's public signature and converts it into a format Debian understands
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+```
+Without this, anyone could pretend to be Docker and send you a virus. This key ensures that every piece of code you download is exactly what Docker intended to send.
+
+#### Add the repository to Apt sources
+Debian’s built-in "app store" (APT) usually contains an older version of Docker. This step tells your system: "Don't look in the standard Debian store; go directly to Docker's official warehouse."
+```bash
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+```bash
+sudo apt-get update
+```
+
+Then install docker and plugins
+```bash
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+Now add your user to the docker group. It's important to use the docker commands without sudo.
+```bash
+sudo usermod -aG docker your_user
+su - your_user
+sudo reboot
+```
+
+Now check if the docker is working well with the following command:
+```bash
+docker run hello-world
+```
+
+#### 1.3.4. Install make and hostsed
+
+hostsed - a tiny hosts file command line edit tool. It's a simple python tool for editing hosts file(default /etc/hosts), you can add or delete a DNS entry via command line shell(e.x. bash).
+
+```bash
+sudo apt-get install --yes make hostsed
+```
