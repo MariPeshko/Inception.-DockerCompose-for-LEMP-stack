@@ -1,1 +1,1 @@
-FROM Ubuntu:jammy
+FROM ubuntu:jammy

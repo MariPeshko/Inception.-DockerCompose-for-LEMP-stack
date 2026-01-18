@@ -51,7 +51,7 @@ fi
 chown -R mysql:mysql /var/lib/mysql
 
 echo "Starting MariaDB..."
-# Передаємо керування основній команді (mariadbd з Dockerfile)
+# Pass control to the main command (mariadb from Dockerfile)
 exec "$@"
 
 # Why do we use exec “$@” at the end?

@@ -3,7 +3,10 @@
 # Inception
 
 ## **Description**
-section that clearly presents the project, including its goal and a brief overview.
+This section clearly presents the project, including its goal and a brief overview.
+
+## **Instructions**
+This section contains any relevant information about compilation, installation, and/or execution.
 
 ◦ Virtual Machines vs Docker
 
@@ -13,12 +16,10 @@ section that clearly presents the project, including its goal and a brief overvi
 
 ◦ Docker Volumes vs Bind Mounts
 
-## **Instructions**
-section containing any relevant information about compilation, installation, and/or execution.
+Both Docker volumes and bind mounts allow container data to persist, but they operate quite differently. Docker volumes are the preferred method, where Docker creates and manages a dedicated storage area on the host filesystem, completely isolated from the host's core files. This makes volumes ideal for production as they are platform-independent and can be safely managed through the Docker CLI. You can create, list, and remove volumes without knowing their exact location on the host machine. In contrast, a bind mount links a specific file or directory from your host machine directly into a container. The host file dictates the content, and any changes on the host are immediately reflected inside the container. This makes bind mounts perfect for development, such as when you want to edit source code on your host and see the changes live in the container.
 
 ## **Resources**
 section listing classic references related to the topic (documentation, articles, tutorials, etc.), as well as a description of how AI was used — specifying for which tasks and which parts of the project.
-
 
 ## Table of Contents
 - [1. The VM](#1-the-vm)

@@ -1,7 +1,7 @@
 ### To build an image
 
 ```bash
-docker build -t my_mariadb .
+docker build -t my_mariadb ./requirements/mariadb
 ```
 
 After executing the docker build command, your image does not appear as a separate file in the project folder (such as .exe or .zip). Docker stores it in its internal “storage,” which is managed by Docker Daemon.
