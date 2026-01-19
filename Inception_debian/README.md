@@ -8,15 +8,44 @@ This section clearly presents the project, including its goal and a brief overvi
 ## **Instructions**
 This section contains any relevant information about compilation, installation, and/or execution.
 
-◦ Virtual Machines vs Docker
+## **Virtual Machines vs Docker**
 
-◦ Secrets vs Environment Variables
+## **Secrets vs Environment Variables**
 
-◦ Docker Network vs Host Network
+## **Docker Network vs Host Network**
 
-◦ Docker Volumes vs Bind Mounts
+## **Docker Volumes vs Bind Mounts**
 
-Both Docker volumes and bind mounts allow container data to persist, but they operate quite differently. Docker volumes are the preferred method, where Docker creates and manages a dedicated storage area on the host filesystem, completely isolated from the host's core files. This makes volumes ideal for production as they are platform-independent and can be safely managed through the Docker CLI. You can create, list, and remove volumes without knowing their exact location on the host machine. In contrast, a bind mount links a specific file or directory from your host machine directly into a container. The host file dictates the content, and any changes on the host are immediately reflected inside the container. This makes bind mounts perfect for development, such as when you want to edit source code on your host and see the changes live in the container.
+Both Docker volumes and bind mounts allow container data to persist, but they operate quite differently. Docker volumes are the preferred method, where Docker creates and manages a dedicated storage area on the host filesystem, completely isolated from the host's core files. This makes volumes ideal for production as they are platform-independent and can be safely managed through the Docker CLI. You can create, list, and remove volumes without knowing their exact location on the host machine.
+
+Bind Mounts example.
+You tell Docker, "Create an object called mariadb_data. Where you put it is up to you, just give me access to it." Who is in charge: Docker. It creates the folder itself (usually in /var/lib/docker/volumes/), sets the correct access rights itself.
+
+```bash
+# Docker will create the 'db_data' volume itself if it doesn't exist
+docker run -d --name mariadb_container 
+  --env-file .env \
+  -v db_data:/var/lib/mysql \
+  my_mariadb
+```
+
+In contrast, a bind mount links a specific file or directory from your host machine directly into a container. The host file dictates the content, and any changes on the host are immediately reflected inside the container. This makes bind mounts perfect for development, such as when you want to edit source code on your host and see the changes live in the container.
+
+Bind Mounts example:
+```bash
+docker run -d --name wordpress_container --network test_network \
+  --env-file .env \
+  -v /home/mpeshko/data/wordpress:/var/www/html \
+  my_wordpress
+```
+
+You are explicitly telling Docker: "Take this specific folder on my computer /home/mpeshko/data/mariadb and push it into the container."
+
+In the Inception project, Bind Mounts are prohibited because the project should be as isolated as possible and independent of the folder structure of a particular user.
+
+**Why do you see device: /home/mpeshko/data/wordpress in Inception?**
+This is a **"hybrid" approach**. It's a Named Volume that is configured to store data in a specific location (via driver_opts). Technically it's still a Named Volume, but with a hard-link.
+
 
 ## **Resources**
 section listing classic references related to the topic (documentation, articles, tutorials, etc.), as well as a description of how AI was used — specifying for which tasks and which parts of the project.
