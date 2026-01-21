@@ -1,23 +1,32 @@
+Even for testing a single service, it's better to create a network. 
 You can create the network manually before starting:
 
 ```bash
 docker network create inception_network
 
-#build maria
+# --network option
 
+# run db
 docker run -d --name mariadb_container \
 --network inception_network \
 --env-file .env \
--v /home/mpeshko/data/mariadb:/var/lib/mysql \
+-v $HOME/data/mariadb:/var/lib/mysql \
 my_mariadb
 
-docker build -t my_wordpress ./requirements/wordpress
-
+# run wp
 docker run -d --name wordpress_container \
-    --network inception_network \
-    --env-file .env \
-    -v /home/mpeshko/data/wordpress:/var/www/html \
-    my_wordpress
+--network inception_network \
+--env-file .env \
+-v $HOME/data/wordpress:/var/www/html \
+my_wordpress
+
+# run nginx with the same volume as wordpress
+docker run -d --name nginx_cont \
+--network inception_network \
+--env-file .env \
+-p 443:443 \
+-v $HOME/data/wordpress:/var/www/html \
+my_nginx
 ```
 
 Are the containers on the same network?
@@ -27,10 +36,11 @@ docker network inspect inception_network
 
 ### **Nginx → WordPress tests**
 
-1. Checking Nginx configuration (simplest)
+1. Checking Nginx configuration (simplest) and check the contents of the folder from within Nginx:
 
 ```bash
 docker exec nginx_cont nginx -t
+docker exec nginx_cont ls -la /var/www/html
 ```
 
 2. Checking from the host machine (Debian)

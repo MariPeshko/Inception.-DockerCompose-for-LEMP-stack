@@ -8,13 +8,18 @@ Delete image:
 docker rmi my_mariadb
 ```
 
-Try this “nuclear” cleaning method before the next build:
+### Cleanup from the evaluation sheet
 
 ```bash
-docker stop $(docker ps -qa) 2>/dev/null
-docker rm $(docker ps -qa) 2>/dev/null
-docker rmi -f $(docker images -qa)
-docker volume prune -f
+# -q, --quiet - Only display container IDs
+docker stop $(docker ps -qa);
+docker rm $(docker ps -qa);
+docker rmi -f $(docker images -qa);
+# Attempts to remove all volumes. Fails on in-use volumes.
+docker volume rm $(docker volume ls -q);
+# 2> file redirects stderr to file. /dev/null is the null device. 
+# It takes any input you want and throws it away. It can be used to suppress any output
+docker network rm $(docker network ls -q) 2>/dev/null
 ```
 
 This command only removes Named Volumes. It absolutely "does not see" Bind Mount, because for Docker your /home/mpeshko/data/mariadb folder is just part of your file system, not a Docker object.
@@ -22,19 +27,25 @@ This command only removes Named Volumes. It absolutely "does not see" Bind Mount
 docker volume rm $(docker volume ls -q)
 ```
 
-or
+Removes only unused volumes.
+```bash
+docker volume prune -f
+```
+
+Removes all unused system resources: containers, networks, volumes, and images. It's a complete cleanup.
 ```bash
 docker system prune -a --volumes -f
 ```
 
-How to remove Bind Mount?
+### How to remove Bind Mount?
+
 To delete data stored via Bind Mount, you need to do it manually in your virtual machine's terminal:
 ```bash
-sudo rm -rf /home/mpeshko/data/mariadb/*
-# take ownership back
-sudo chown -R mpeshko:mpeshko /home/mpeshko/data/mariadb
+sudo rm -rf $HOME/data/mariadb/*
+# take ownership back to mpeshko
+sudo chown -R mpeshko:mpeshko $HOME/data/mariadb
 
-sudo rm -rf /home/mpeshko/data/wordpress/*
-# take ownership back
-sudo chown -R mpeshko:mpeshko /home/mpeshko/data/wordpress
+sudo rm -rf $HOME/data/wordpress/*
+# take ownership back to mpeshko
+sudo chown -R mpeshko:mpeshko $HOME/data/wordpress
 ```

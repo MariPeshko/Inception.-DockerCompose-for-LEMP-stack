@@ -1,6 +1,4 @@
 FROM debian:bookworm
-#to not install unnecessary packages you can also use
-#FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 

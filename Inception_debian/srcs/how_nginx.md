@@ -1,14 +1,3 @@
-```bash
-docker build -t my_nginx ./requirements/nginx
-
-docker run -d --name nginx_cont \
-    --network inception_network \
-    --env-file .env \
-    -p 443:443 \
-    -v /home/mpeshko/data/wordpress:/var/www/html \
-    my_nginx
-```
-
 Log of errors:
 
 1. docker logs nginx_cont

@@ -1,34 +1,5 @@
-Even for testing a single service, it's better to create a network. It's not difficult, but it eliminates 90% of communication problems.
-
-```bash
-docker network create test_network
-```
-
-Run MariaDB on this network:
-
-```bash
-docker run -d --name mariadb_container --network test_network --env-file .env my_mariadb
-```
-
-Build and run WordPress on the same network.
--it instead of -d so you can see the script logging in real time.
-
-```bash
-docker build -t my_wordpress ./requirements/wordpress
-
-docker run -d --name wordpress_container --network test_network --env-file .env my_wordpress
-```
-
-#### How to run a container with a "bind" to a folder:
-
-```bash
-docker run -d --name wordpress_container --network test_network \
-  --env-file .env \
-  -v /home/mpeshko/data/wordpress:/var/www/html \
-  my_wordpress
-```
-
 Go inside to check. Let's check if your WordPress files are in place:
+
 ```bash
 docker exec -it wordpress_container ls -la /var/www/html
 ```

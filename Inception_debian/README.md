@@ -16,9 +16,9 @@ This section contains any relevant information about compilation, installation, 
 
 ## **Docker Volumes vs Bind Mounts**
 
-Both Docker volumes and bind mounts allow container data to persist, but they operate quite differently. Docker volumes are the preferred method, where Docker creates and manages a dedicated storage area on the host filesystem, completely isolated from the host's core files. This makes volumes ideal for production as they are platform-independent and can be safely managed through the Docker CLI. You can create, list, and remove volumes without knowing their exact location on the host machine.
+Both Docker volumes (Named Volumes) and bind mounts allow container data to persist, but they operate quite differently. Docker volumes are the preferred method, where Docker creates and manages a dedicated storage area on the host filesystem, completely isolated from the host's core files. This makes volumes ideal for production as they are platform-independent and can be safely managed through the Docker CLI. You can create, list, and remove volumes without knowing their exact location on the host machine.
 
-Bind Mounts example.
+Docker Volume example.
 You tell Docker, "Create an object called mariadb_data. Where you put it is up to you, just give me access to it." Who is in charge: Docker. It creates the folder itself (usually in /var/lib/docker/volumes/), sets the correct access rights itself.
 
 ```bash
@@ -44,8 +44,8 @@ You are explicitly telling Docker: "Take this specific folder on my computer /ho
 In the Inception project, Bind Mounts are prohibited because the project should be as isolated as possible and independent of the folder structure of a particular user.
 
 **Why do you see device: /home/mpeshko/data/wordpress in Inception?**
-This is a **"hybrid" approach**. It's a Named Volume that is configured to store data in a specific location (via driver_opts). Technically it's still a Named Volume, but with a hard-link.
 
+This is a **"hybrid" approach**. It's a Named Volume that is configured to store data in a specific location (via driver_opts). Technically it's still a Named Volume, but with a hard-link.
 
 ## **Resources**
 section listing classic references related to the topic (documentation, articles, tutorials, etc.), as well as a description of how AI was used — specifying for which tasks and which parts of the project.
