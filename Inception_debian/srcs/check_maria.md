@@ -5,7 +5,7 @@ Go inside the working container and check whether the database has been created.
 Warning: When you restart the database, please note - the user "mpeshko" must be exactly the same as MYSQL_USER in your .env.
 
 ```bash
-docker exec -it mariadb_container mariadb -u mpeshko -p
+docker exec -it mariadb mariadb -u mpeshko -p
 ```
 
 (When prompted for a password, enter the one specified in .env for the user).
@@ -32,7 +32,7 @@ SELECT * FROM notes;
 
 Let's log in as root (whose password we changed in the script) and look at the list of users.
 ```bash
-docker exec -it mariadb_container mariadb -u root -p
+docker exec -it mariadb mariadb -u root -p
 ```
 
 ```SQL

@@ -1,3 +1,4 @@
+# Do I need NAME for Makefile? What if I don't have one?
 NAME			= inception
 SRCS			= srcs/
 DOCKER-COMPOSE	= $(SRCS)/docker-compose.yml
@@ -10,7 +11,8 @@ $(NAME): up
 
 # start the containers trough docker compose
 up:
-# why create_dir here? I have them persistently... Is it for safety?
+	mkdir -p $(HOME)/data/mariadb $(HOME)/data/wordpress
+# chown -R ??^?? $(HOME)/data/wordpress
 	@docker compose -p $(NAME) -f $(DOCKER-COMPOSE) up --build || (echo " $(FAIL)" && exit 1)
 	@echo " $(UP)"
 
@@ -18,6 +20,12 @@ up:
 down:
 	@docker compose -p $(NAME) down
 	@echo " $(DOWN)"
+
+# clean
+
+# fclean
+
+# re
 
 # Customs
 

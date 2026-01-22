@@ -28,7 +28,7 @@ RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 # this means that no one from outside can connect to it. You need to change 
 # the bind-address to 0.0.0.0.
 # Configure MariaDB to listen on all interfaces
-COPY ./conf/55-override.cnf /etc/mysql/mariadb.conf.d/
+COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/
 COPY ./tools/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 

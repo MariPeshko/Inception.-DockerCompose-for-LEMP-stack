@@ -4,24 +4,26 @@ You can create the network manually before starting:
 ```bash
 docker network create inception_network
 
+docker network ls
+
 # --network option
 
 # run db
-docker run -d --name mariadb_container \
+docker run -d --name mariadb \
 --network inception_network \
 --env-file .env \
 -v $HOME/data/mariadb:/var/lib/mysql \
 my_mariadb
 
 # run wp
-docker run -d --name wordpress_container \
+docker run -d --name wordpress \
 --network inception_network \
 --env-file .env \
 -v $HOME/data/wordpress:/var/www/html \
 my_wordpress
 
 # run nginx with the same volume as wordpress
-docker run -d --name nginx_cont \
+docker run -d --name nginx \
 --network inception_network \
 --env-file .env \
 -p 443:443 \
@@ -39,8 +41,8 @@ docker network inspect inception_network
 1. Checking Nginx configuration (simplest) and check the contents of the folder from within Nginx:
 
 ```bash
-docker exec nginx_cont nginx -t
-docker exec nginx_cont ls -la /var/www/html
+docker exec nginx nginx -t
+docker exec nginx ls -la /var/www/html
 ```
 
 2. Checking from the host machine (Debian)
@@ -51,7 +53,7 @@ curl -v -k --resolve mpeshko.42.fr:443:127.0.0.1 https://mpeshko.42.fr
 3. With curl
 
 ```bash
-docker exec nginx_cont curl -I wordpress_container:9000
+docker exec nginx curl -I wordpress:9000
 ```
 
 What we expect: Since port 9000 is not HTTP, but FastCGI, curl may throw an error like Connection reset by peer (or Empty reply from server, Connection reset) .
@@ -65,7 +67,7 @@ Why does this prove that everything works?
 
 4. 
 ```bash
-docker exec nginx_cont curl -I -k https://localhost
+docker exec nginx curl -I -k https://localhost
 ```
 
 Expected result: HTTP/1.1 200 OK
@@ -103,5 +105,5 @@ Why is mysqladmin not working?
 Sometimes mysqladmin ping may require authorization if the database is already initialized. You need to pass in your credentials. Since this is an initialization script, it is best to use the root user.
 
 ```bash
-until mysqladmin ping -h"mariadb_container" -u root -p"$MYSQL_ROOT_PASSWORD" --silent; do
+until mysqladmin ping -h"mariadb" -u root -p"$MYSQL_ROOT_PASSWORD" --silent; do
 ```

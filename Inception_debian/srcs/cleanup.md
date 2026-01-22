@@ -1,6 +1,6 @@
 Automatically remove the container and its associated anonymous volumes when it exits
 ```bash
-docker rm -f mariadb_container
+docker rm -f mariadb
 ```
 
 Delete image:

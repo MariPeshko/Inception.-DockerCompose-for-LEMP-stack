@@ -23,7 +23,7 @@ You tell Docker, "Create an object called mariadb_data. Where you put it is up t
 
 ```bash
 # Docker will create the 'db_data' volume itself if it doesn't exist
-docker run -d --name mariadb_container 
+docker run -d --name mariadb 
   --env-file .env \
   -v db_data:/var/lib/mysql \
   my_mariadb
@@ -33,7 +33,7 @@ In contrast, a bind mount links a specific file or directory from your host mach
 
 Bind Mounts example:
 ```bash
-docker run -d --name wordpress_container --network test_network \
+docker run -d --name wordpress --network test_network \
   --env-file .env \
   -v /home/mpeshko/data/wordpress:/var/www/html \
   my_wordpress

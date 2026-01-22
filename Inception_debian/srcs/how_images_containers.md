@@ -14,7 +14,7 @@ docker images
 ### run container without volume
 
 ```bash
-docker run -d --name mariadb_container --env-file .env my_mariadb
+docker run -d --name mariadb --env-file .env my_mariadb
 ```
 
 -d (detached mode) Docker launchs the container in the background.
@@ -28,7 +28,7 @@ When you add --env-file .env, Docker automatically makes all variables (such as 
 ### run with volumes (bind mounts)
 
 ```bash
-docker run -d --name mariadb_container \
+docker run -d --name mariadb \
   --env-file .env \
   -v $HOME/data/mariadb:/var/lib/mysql \
   my_mariadb
@@ -50,5 +50,5 @@ docker-compose down -v
 
 ### To stop container
 ```bash
-docker stop mariadb_container
+docker stop mariadb
 ```

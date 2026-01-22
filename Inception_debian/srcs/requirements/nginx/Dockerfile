@@ -1,23 +1,24 @@
 # If you want to use variables directly in a Dockerfile you need to use 
 # the ARG statement.
 # Key generation (req -x509)
-FROM debian:bookworm-slim
+FROM debian:bookworm
 
 RUN apt update && apt install -y --no-install-recommends --no-install-suggests \
 		nginx \
 		openssl \
-		curl && \
+		curl \
+		procps && \
 		rm -rf /var/lib/apt/lists/*
 
+#to run wothout compose file
 # 1 warning found (use docker --debug to expand):
 # - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ARG "SSL_KEY") (line 12)
+#ARG SSL_CERT_FOLDER=/etc/nginx/ssl/
+#ARG SSL_KEY=/etc/nginx/ssl/inception.key
+#ARG SSL_CERT=/etc/nginx/ssl/inception.crt
+#ARG DOMAIN_NAME=mpeshko.42.fr
 
-ARG SSL_CERT_FOLDER=/etc/nginx/ssl/
-ARG SSL_KEY=/etc/nginx/ssl/inception.key
-ARG SSL_CERT=/etc/nginx/ssl/inception.crt
-ARG DOMAIN_NAME=mpeshko.42.fr
-
-# ARG SSL_CERT_FOLDER SSL_KEY SSL_CERT DOMAIN_NAME
+ARG SSL_CERT_FOLDER SSL_KEY SSL_CERT DOMAIN_NAME
 
 # Creating a folder for SSL certificates
 RUN mkdir -p "${SSL_CERT_FOLDER}"
