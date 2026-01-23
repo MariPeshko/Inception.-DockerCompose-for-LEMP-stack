@@ -16,7 +16,7 @@ Use this command to remove everything:
 docker compose down
 ```
 
- If you do want to remove the volumes, add the --volumes flag
+ If you do want to remove the volumes, add the `--volumes` flag
  ```bash
  docker compose down -v
  ```

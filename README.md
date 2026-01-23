@@ -25,7 +25,7 @@ Source: [Azedine Ouhadou](https://github.com/azedineouhadou)
 - **Disadvantages:** Environment variables can be visible if someone gains access to the container and runs the `env` or `docker inspect` command.
 
 #### Docker Secrets
-- **How it works:** Each secret is stored in a separate file (for example, the database password in db_password.txt). In docker-compose.yml, you tell Docker that these files are “secrets.” Docker mounts these files inside the container into a special temporary directory in memory (/run/secrets/). Your application must read the contents of these files to obtain the secret.
+- **How it works:** Each secret is stored in a separate file (for example, the database password in db_password.txt). In `docker-compose.yml`, you tell Docker that these files are “secrets.” Docker mounts these files inside the container into a special temporary directory in memory (`/run/secrets/`). Your application must read the contents of these files to obtain the secret.
 - **Example in docker-compose.yml:**
 ```bash
 services:
@@ -49,6 +49,9 @@ secrets:
 ## **Docker Network vs Host Network**
 
 TODO
+host	Remove network isolation between the container and the Docker host.
+https://docs.docker.com/engine/network/
+https://docs.docker.com/engine/network/drivers/host/
 
 ## **Docker Volumes vs Bind Mounts**
 
@@ -63,17 +66,17 @@ You tell Docker, "Create an object called mariadb_data. Where you put it is up t
 docker run -d --name mariadb 
   --env-file .env \
   -v db_data:/var/lib/mysql \
-  my_mariadb
+  mariadb
 ```
 
 In contrast, a bind mount links a specific file or directory from your host machine directly into a container. The host file dictates the content, and any changes on the host are immediately reflected inside the container. This makes bind mounts perfect for development, such as when you want to edit source code on your host and see the changes live in the container.
 
 Bind Mounts example:
 ```bash
-docker run -d --name wordpress --network test_network \
+docker run -d --name wordpress --network inception_network \
   --env-file .env \
   -v /home/mpeshko/data/wordpress:/var/www/html \
-  my_wordpress
+  wordpress
 ```
 
 You are explicitly telling Docker: *"Take this specific folder on my computer `/home/mpeshko/data/mariadb` and push it into the container."*
@@ -94,7 +97,9 @@ TODO: section listing classic references related to the topic (documentation, ar
 - [Drag and Drop in VM](https://www.virtualbox.org/manual/ch04.html)
 - [Guest Additions](https://www.virtualbox.org/manual/ch04.html)
 
+TODO: how AI was used
 Gemini chat in a browser - to research and to debug.
+Agent Claude Sonnet 4 created USER_DOC and DEV_DOC documents based on my notes.
 
 ## Table of Contents
 - [1. The VM](#1-the-vm)

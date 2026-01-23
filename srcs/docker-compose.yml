@@ -62,7 +62,7 @@ services:
       - wp_data:/var/www/html
 
 # volumes -----------------------------------------------------
-# device: where the data will be stored in the host machine
+# device: where the data will be stored in the  machine
 
 volumes:
   db_data:

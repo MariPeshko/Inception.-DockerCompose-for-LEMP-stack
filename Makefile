@@ -1,31 +1,62 @@
-# Do I need NAME for Makefile? What if I don't have one?
-NAME			= inception
+# Notes:
+# -f flag for docker compose - Docker uses the specific file you specify
+# echo -e - enable interpretation of backslash escapes because echo 
+# won't interpret \033 codes without it. You see literal \033[0;32m text instead of green color.
+# The all: rule is the default rule that runs when you type just make
+# hostsed is a specialized tool for managing hosts entries more safely than directly editing the file
+# The @ character at the beginning of Make commands suppresses echoing of the command itself.
+
 SRCS			= srcs/
-DOCKER-COMPOSE	= $(SRCS)/docker-compose.yml
+YAML	= $(SRCS)/docker-compose.yml
+DOMAIN			= mpeshko.42.fr
 
 # Rules
+all: setup
 
-all: $(NAME)
-
-$(NAME): up
+# setup everything (containers + hosts)
+setup: up hosts
 
 # start the containers trough docker compose
 up:
-	mkdir -p $(HOME)/data/mariadb $(HOME)/data/wordpress
-# chown -R ??^?? $(HOME)/data/wordpress
-	@docker compose -p $(NAME) -f $(DOCKER-COMPOSE) up --build || (echo " $(FAIL)" && exit 1)
+	@mkdir -p $(HOME)/data/mariadb $(HOME)/data/wordpress && echo -e " $(DIR_CREATED)"
+# maybe, I don't need it
+#@chown -R $(USER):$(USER) $(HOME)/data/mariadb
+#@chown -R $(USER):$(USER) $(HOME)/data/wordpress
+	@docker compose -f $(YAML) up -d --build || (echo -e " $(FAIL)" && exit 1)
 	@echo " $(UP)"
+
+# add domain to hosts file for browser access
+hosts:
+	@echo "Adding $(DOMAIN) to /etc/hosts..."
+# in case no hostsed on system
+#@echo "127.0.0.1 $(DOMAIN)" | sudo tee -a /etc/hosts
+	@sudo hostsed add 127.0.0.1 $(DOMAIN) > $(SILENCE)
+	@echo " $(HOST_ADD)"
+
+stop:
+	@docker compose -f $(YAML) stop
+	@echo " $(STOPPED)"
+
+start:
+	@docker compose -f $(YAML) start
+	@echo " $(STARTED)"
 
 # stop the containers through docker compose
 down:
-	@docker compose -p $(NAME) down
+	@docker compose -f $(YAML) down
 	@echo " $(DOWN)"
 
-# clean
+# removes the containers, images and the host url from the host file
+# If domain isn't in hosts file with || true: Make continues, treating it as success
+fclean: down
+	@docker compose -f $(YAML) down -v --rmi all
+	@sudo hostsed rm 127.0.0.1 $(DOMAIN) > $(SILENCE) || true
+	@echo " $(HOST_RM)"
+	@sudo rm -rf $(HOME)/data/mariadb $(HOME)/data/wordpress
+	@echo " $(DIR_RMVD)"
 
-# fclean
-
-# re
+# Rebuild from scratch
+re: fclean setup
 
 # Customs
 
@@ -35,9 +66,21 @@ RESET		= \033[0m
 
 MARK		= $(GREEN)✔$(RESET)
 EXECUTED	= $(GREEN)Executed$(RESET)
+ADDED		= $(GREEN)Added$(RESET)
+REMOVED		= $(GREEN)Removed$(RESET)
+
+SILENCE		= /dev/null 2>&1
 
 # Messages
 
-UP			= $(MARK) $(NAME)		$(EXECUTED)
+UP			= $(MARK) Inception		$(EXECUTED)
+STARTED		= $(MARK) Started$(RESET)
+STOPPED		= $(GREEN)Stopped$(RESET)
+DOWN		= $(MARK) Inception	stopped. Containers, networks are removed$(RESET)
+FAIL		= $(RED)✔$(RESET) Inception		$(RED)Failed$(RESET)
+DIR_CREATED = $(MARK) Directories for volumes are created
+DIR_RMVD	= $(MARK) Directories for volumes are deleted
+HOST_RM		= $(MARK) Host $(DOMAIN)  $(REMOVED)
+HOST_ADD	= $(MARK) Host $(DOMAIN)  $(ADDED)
 
-FAIL		= $(RED)✔$(RESET) $(NAME)		$(RED)Failed$(RESET)
+.PHONY: all up setup hosts stop start down fclean re

@@ -13,14 +13,14 @@ docker run -d --name mariadb \
 --network inception_network \
 --env-file .env \
 -v $HOME/data/mariadb:/var/lib/mysql \
-my_mariadb
+mariadb
 
 # run wp
 docker run -d --name wordpress \
 --network inception_network \
 --env-file .env \
 -v $HOME/data/wordpress:/var/www/html \
-my_wordpress
+wordpress
 
 # run nginx with the same volume as wordpress
 docker run -d --name nginx \
@@ -28,7 +28,7 @@ docker run -d --name nginx \
 --env-file .env \
 -p 443:443 \
 -v $HOME/data/wordpress:/var/www/html \
-my_nginx
+nginx
 ```
 
 Are the containers on the same network?
@@ -76,26 +76,27 @@ This will confirm that Nginx successfully "translated" your HTTP request into Fa
 
 5. Checking site availability (HTTP → HTTPS)
 
-Let's try to simulate accessing the site via the terminal of the host machine (Debian). Since we are using a self-signed certificate, we add the -k (ignore insecure) flag.
+Let's try to simulate accessing the site via the terminal of the host machine (Debian). Since we are using a self-signed certificate, we add the `-k`(ignore insecure) flag.
 
 ```bash
 curl -k https://localhost
 ```
 
-If this test (curl -k) gave an error *Error establishing a database connection*, then the Nginx-WordPress connection is there, but the WordPress-MariaDB connection is not.
+If this test `(curl -k)` gave an error *Error establishing a database connection*, then the Nginx-WordPress connection is there, but the WordPress-MariaDB connection is not.
 
 If you see the HTML page, the connection is perfect throughout the chain.
 
 6. The final touch (Browser)
 
-To see the result "pretty", you need to add the domain to the */etc/hosts* file of your main system (not the virtual machine, but the one where you open the browser), or inside Debian:
+To see the result "pretty", you need to add the domain to the `*/etc/hosts*` file of your main system (not the virtual machine, but the one where you open the browser), or inside Debian:
 
 ```bash
 echo "127.0.0.1 mpeshko.42.fr" | sudo tee -a /etc/hosts
 ```
 
-Now open your browser and enter: https://mpeshko.42.fr. The browser will show a red warning (as required by the Evaluation Sheet) - click "Advanced" and "Proceed".
+Now open your browser and enter: `https://mpeshko.42.fr`. The browser will show a red warning (as required by the Evaluation Sheet) - click `"Advanced"` and `"Proceed"`.
 
+--- 
 
 Error with WordPress script.
 

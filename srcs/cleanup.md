@@ -5,7 +5,7 @@ docker rm -f mariadb
 
 Delete image:
 ```bash
-docker rmi my_mariadb
+docker rmi mariadb
 ```
 
 ### Cleanup from the evaluation sheet

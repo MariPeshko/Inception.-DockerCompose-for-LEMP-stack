@@ -1,7 +1,7 @@
 ### To build an image
 
 ```bash
-docker build -t my_mariadb ./requirements/mariadb
+docker build -t mariadb ./requirements/mariadb
 ```
 
 After executing the docker build command, your image does not appear as a separate file in the project folder (such as .exe or .zip). Docker stores it in its internal “storage,” which is managed by Docker Daemon.
@@ -14,7 +14,7 @@ docker images
 ### run container without volume
 
 ```bash
-docker run -d --name mariadb --env-file .env my_mariadb
+docker run -d --name mariadb --env-file .env mariadb
 ```
 
 -d (detached mode) Docker launchs the container in the background.
@@ -31,24 +31,26 @@ When you add --env-file .env, Docker automatically makes all variables (such as 
 docker run -d --name mariadb \
   --env-file .env \
   -v $HOME/data/mariadb:/var/lib/mysql \
-  my_mariadb
+  mariadb
 ```
 
 Delete the container (docker rm -f) and check that the files in db_data remain!
 
+### To stop container
+```bash
+docker stop mariadb
+```
+
+### With .yml file:
+
 The data should not disappear after:
 ```bash
-docker-compose down
+docker compose down
 ```
 
 But it should be deleted if you explicitly run:
 
 ```bash
 #the -v flag deletes the volumes
-docker-compose down -v
-```
-
-### To stop container
-```bash
-docker stop mariadb
+docker compose down -v
 ```
