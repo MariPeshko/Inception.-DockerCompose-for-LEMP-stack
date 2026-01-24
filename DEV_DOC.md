@@ -1,6 +1,46 @@
 # *Developer documentation*
 
-◦ TO DO Set up the environment from scratch (prerequisites, configuration files, secrets).
+## 🔐 Locate and Manage Credentials
+Set up the environment from scratch.
+
+### � Access to Credentials
+
+**To obtain the `.env` file with credentials:**
+- **Contact**: Maryna Peshko
+- **Login**: `mpeshko`
+- **Request**: `.env` file for Inception project access
+
+### 📂 Credential Location
+
+All credentials must be stored in the environment file:
+**📁 File**: `srcs/.env`
+
+### 🗃️ Database Credentials (MariaDB)
+
+The `.env` file contains the following database configuration variables:
+- `MYSQL_DATABASE` - Database name
+- `MYSQL_USER` - Database user
+- `MYSQL_PASSWORD` - Database user password
+- `MYSQL_ROOT_PASSWORD` - Database root password
+
+**Usage**: These credentials are used internally by WordPress to connect to the MariaDB database.
+
+### 🌐 WordPress Credentials
+
+#### Administrator Account
+The `.env` file contains these admin variables:
+- `WP_ADMIN_USER` - Administrator username
+- `WP_ADMIN_PASSWORD` - Administrator password  
+
+**Access**: https://mpeshko.42.fr/wp-admin
+**Capabilities**: Full administrative access, can manage users, content, themes, plugins
+
+### 🔒 SSL Certificate Information
+
+SSL certificate configuration variables in `.env`:
+- `SSL_CERT_FOLDER` - Certificate folder path
+- `SSL_CERT` - Certificate file path
+- `SSL_KEY` - Private key file path
 
 ## 🔨 Build and Launch the Project using the Makefile and Docker Compose
 
@@ -337,3 +377,24 @@ make down && make up
 docker exec mariadb ls /var/lib/mysql/test_persistence
 docker exec wordpress ls /var/www/html/test_persistence
 ```
+
+### 🚨 Troubleshooting Common Issues
+
+**If website is inaccessible:**
+```bash
+# Verify hosts file entry
+grep mpeshko.42.fr /etc/hosts
+
+# Should show: 127.0.0.1 mpeshko.42.fr
+```
+
+### ✅ Health Check Checklist
+
+- [ ] All 3 containers running (`docker ps`)
+- [ ] Website accessible at https://mpeshko.42.fr
+- [ ] SSL certificate working (shows padlock, even if "not secure")
+- [ ] WordPress admin panel accessible
+- [ ] Both user accounts can log in
+- [ ] Comments can be added
+- [ ] Data persists after container restart
+- [ ] Data persists after VM reboot

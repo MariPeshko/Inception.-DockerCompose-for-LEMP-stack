@@ -3,7 +3,25 @@
 # Inception
 
 ## **Description**
-TODO: This section clearly presents the project, including its goal and a brief overview.
+
+`"Inception"` is a Docker containerization project that builds and deploys a complete LEMP stack using **Docker Compose**. The goal is to create a fully functional web infrastructure with proper isolation, security, and orchestration.
+
+**A LEMP stack** *is a popular, open-source software bundle for hosting dynamic websites, consisting of Linux (Operating System), Engine-X (Nginx web server), MySQL (database), and PHP (programming language).*
+
+**Key Components:**
+- **MariaDB** - Database server for data persistence
+- **WordPress** - Content management system with PHP-FPM
+- **Nginx** - Web server with TLS/SSL encryption
+- **Docker** - Containerization platform for service isolation
+- **Docker Compose** - Multi-container orchestration tool
+
+**Project Goals:**
+- Deploy a secure LEMP stack using custom Docker containers (no pre-built images)
+- Implement proper networking and volume management handling
+- Configure HTTPS with self-signed SSL certificates
+- Ensure data persistence and service communication between containers
+
+This project demonstrates modern containerization practices, network security, and system administration skills essential for DevOps engineers.
 
 For more info: [subject](https://github.com/MariPeshko/Inception_DockerCompose_for_LEMP_stack/blob/main/Inception_5.2_en.subject.pdf).
 
@@ -12,9 +30,29 @@ This section contains any relevant information about compilation, installation, 
 
 ## **Virtual Machines vs Docker**
 
-![Inception](img/vm_vs_container.jpg "Inception")
-![Inception](img/vm-vs-vt.png "Inception")
+**Virtual Machines (VMs):**
+- Run a complete operating system on top of your host OS
+- Each VM includes its own kernel, drivers, and full OS stack
+- Heavy resource usage (GB of RAM per VM)
+- Slower startup times (minutes)
+- Strong isolation but with significant overhead
+
+**Docker Containers:**
+- Share the host OS kernel
+- Package only the application and its dependencies
+- Lightweight (MB of RAM per container)
+- Fast startup times (seconds)
+- Efficient resource usage with process-level isolation
+
+![Inception](img/vm-vs-vt.png "Virtual Machines vs Docker")
 Source: [Azedine Ouhadou](https://github.com/azedineouhadou)
+
+**Key Difference:**
+VMs virtualize hardware, while Docker virtualizes the operating system. This makes containers much more efficient for running multiple applications on the same machine.
+
+**Why Docker for LEMP Stack:**
+Instead of running separate VMs for MariaDB, Nginx, and PHP (which would consume ~6GB RAM), Docker containers for the same stack use ~200MB RAM while maintaining isolation between services.
+
 ---
 
 ## **Secrets vs Environment Variables**
@@ -48,10 +86,40 @@ secrets:
 
 ## **Docker Network vs Host Network**
 
-TODO
-host	Remove network isolation between the container and the Docker host.
-https://docs.docker.com/engine/network/
-https://docs.docker.com/engine/network/drivers/host/
+**Docker Network (Bridge Network):**
+- Containers run in an isolated network environment
+- Each container gets its own IP address within Docker's internal network
+- Containers communicate with each other using container names or service names
+- Host machine acts as a gateway between containers and the outside world
+- Better security through network isolation
+
+**Host Network:**
+- Container shares the host machine's network directly
+- No network isolation - container uses host's IP address
+- Faster performance
+- Less secure - container has direct access to host network
+- Can cause port conflicts between containers
+
+**Why Docker Network for Inception:**
+The project uses a custom Docker network so that:
+- Nginx can reach WordPress using the service name `wordpress:9000`
+- WordPress can connect to MariaDB using the service name `mariadb:3306`
+- Each service remains isolated from the host network for security
+- Only Nginx (port 443) is exposed to the outside world
+
+**Example:**
+```yaml
+networks:
+  inception_network:
+    driver: bridge
+
+services:
+  nginx:
+    networks:
+      - inception_network
+    ports:
+      - "443:443"  # Only this port exposed to host
+```
 
 ## **Docker Volumes vs Bind Mounts**
 
@@ -90,16 +158,17 @@ This is a **"hybrid" approach**. It's a Named Volume that is configured to store
 ---
 
 ## **Resources**
-TODO: section listing classic references related to the topic (documentation, articles, tutorials, etc.), as well as a description of how AI was used — specifying for which tasks and which parts of the project.
 
 - [Manual for Oracle Virtual Box for virtual machine](https://www.virtualbox.org/manual/ch01.html)
 - [Shared Folder in VM](https://www.virtualbox.org/manual/ch03.html#shared-folders)
 - [Drag and Drop in VM](https://www.virtualbox.org/manual/ch04.html)
 - [Guest Additions](https://www.virtualbox.org/manual/ch04.html)
+- [Helpful README about this project by Walter Cruz](https://github.com/waltergcc/42-inception)
+- [Docker documentations](https://docs.docker.com/get-started/)
 
-TODO: how AI was used
-Gemini chat in a browser - to research and to debug.
-Agent Claude Sonnet 4 created USER_DOC and DEV_DOC documents based on my notes.
+**How AI was used:**
+- Gemini chat in a browser - to research, to clarify and to debug Dockerfile + script + configuration.
+- Agent Claude Sonnet 4 assited with creation USER_DOC and DEV_DOC documents based on my notes, also partially README.md.
 
 ## Table of Contents
 - [1. The VM](#1-the-vm)

@@ -1,7 +1,5 @@
 # Notes:
 # -f flag for docker compose - Docker uses the specific file you specify
-# echo -e - enable interpretation of backslash escapes because echo 
-# won't interpret \033 codes without it. You see literal \033[0;32m text instead of green color.
 # The all: rule is the default rule that runs when you type just make
 # hostsed is a specialized tool for managing hosts entries more safely than directly editing the file
 # The @ character at the beginning of Make commands suppresses echoing of the command itself.
@@ -18,11 +16,11 @@ setup: up hosts
 
 # start the containers trough docker compose
 up:
-	@mkdir -p $(HOME)/data/mariadb $(HOME)/data/wordpress && echo -e " $(DIR_CREATED)"
+	@mkdir -p $(HOME)/data/mariadb $(HOME)/data/wordpress && echo " $(DIR_CREATED)"
 # maybe, I don't need it
 #@chown -R $(USER):$(USER) $(HOME)/data/mariadb
 #@chown -R $(USER):$(USER) $(HOME)/data/wordpress
-	@docker compose -f $(YAML) up -d --build || (echo -e " $(FAIL)" && exit 1)
+	@docker compose -f $(YAML) up -d --build || (echo " $(FAIL)" && exit 1)
 	@echo " $(UP)"
 
 # add domain to hosts file for browser access
