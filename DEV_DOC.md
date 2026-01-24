@@ -42,6 +42,29 @@ SSL certificate configuration variables in `.env`:
 - `SSL_CERT` - Certificate file path
 - `SSL_KEY` - Private key file path
 
+### Ensure that a SSL/TLS certificate is used.
+
+Verification via network connection (OpenSSL s_client).
+You mimic the actions of a browser, but receive a full technical report.
+
+```bash
+openssl s_client -connect localhost:443
+
+openssl s_client -connect localhost:443 -tls1_3
+
+# old certificate
+openssl s_client -connect localhost:443 -tls1_1
+```
+
+What to pay attention to in the output:
+
+1. **Certificate chain**: `s:C=DE, ST=Berlin, L=Berlin, O=42, OU=student, CN=mpeshko.42.fr` 
+This proves that Nginx sent the certificate you generated in Dockerfile.
+
+2. **Protocol version**: Look for the line: `Protocol : TLSv1.3` This confirms that the connection is secured with version 1.3.
+
+3. **Cipher Suite**: For example: `Cipher : TLS_AES_256_GCM_SHA384` This is the specific mathematical algorithm that your data is currently encrypted with.
+
 ## 🔨 Build and Launch the Project using the Makefile and Docker Compose
 
 ### Using Makefile (Recommended)
@@ -150,12 +173,6 @@ docker inspect nginx
 docker logs mariadb
 docker logs wordpress
 docker logs nginx
-
-# Follow logs in real-time
-docker logs -f wordpress
-
-# View logs with timestamps
-docker logs -t mariadb
 ```
 
 #### Process Management
@@ -183,16 +200,31 @@ docker exec -it mariadb mariadb -u root -p
 docker exec -it mariadb mariadb -u root -p -e "SHOW DATABASES;"
 ```
 
+### SQL commands
+```SQL
+SHOW DATABASES;
+```
+
+Switch to your database.
+```SQL
+USE your_database_name;
+SHOW TABLES;
+```
+
+Let's log in as root (whose password we changed in the script) and look at the list of users.
+```SQL
+SELECT user, host, plugin FROM mysql.user;
+```
+
 #### WordPress Operations
 ```bash
-# Access WordPress container
-docker exec -it wordpress bash
-
 # Check WordPress files
 docker exec -it wordpress ls -la /var/www/html
 
 # WordPress CLI commands
+# Check if WordPress can see the tables in MariaDB.
 docker exec -it wordpress wp db check --allow-root
+# Check the list of tables
 docker exec -it wordpress wp db tables --allow-root
 
 # Create test user via CLI
@@ -209,12 +241,29 @@ docker exec nginx nginx -t
 
 # Check web root contents
 docker exec nginx ls -la /var/www/html
+```
 
+**Nginx → WordPress tests**
+```bash
 # Test internal connectivity
 docker exec nginx curl -I wordpress:9000
-docker exec nginx curl -I -k https://localhost
+```
 
-# Test listening ports
+What we expect: Since port 9000 is not HTTP, but FastCGI, curl may throw an error like Connection reset by peer (or Empty reply from server, Connection reset) .
+
+Why this is a success: If you see any response other than Could not resolve host or Connection refused, then Nginx knows where WordPress is located and the port is open.
+
+Test2
+```bash
+docker exec nginx curl -I -k https://localhost
+```
+Expected result: HTTP/1.1 200 OK
+
+This will confirm that Nginx successfully "translated" your HTTP request into FastCGI, passed it to WordPress, received the response, and returned it to you.
+
+# Test listening ports of Nginx
+
+```bash
 docker exec nginx ss -tuln
 ```
 
@@ -227,20 +276,16 @@ docker network ls
 
 # Inspect the inception network
 docker network inspect inception
-
-# Check if containers are on the same network
-docker network inspect inception | grep -A 10 "Containers"
 ```
 
 #### Connectivity Testing
+
+Since we are using a self-signed certificate, we add the `-k`(ignore insecure) flag.
+
 ```bash
 # Test external access (from host)
 curl -k https://localhost
 curl -v -k --resolve mpeshko.42.fr:443:127.0.0.1 https://mpeshko.42.fr
-
-# Test internal connectivity
-docker exec nginx curl -I wordpress:9000
-docker exec wordpress ping mariadb
 ```
 
 ### Volume Management
@@ -253,20 +298,6 @@ docker volume ls
 # Inspect specific volumes  
 docker volume inspect inception_db_data
 docker volume inspect inception_wp_data
-
-# Check volume usage
-docker system df -v
-```
-
-#### Volume Data Access
-```bash
-# Check volume mount points (from containers)
-docker exec mariadb df -h /var/lib/mysql
-docker exec wordpress df -h /var/www/html
-
-# Direct access to volume data (from host)
-ls -la ~/data/mariadb/
-ls -la ~/data/wordpress/
 ```
 
 ## 💾 Data Storage and Persistence
@@ -296,11 +327,11 @@ volumes:
 
 ### Physical Storage Paths
 
-| Service | Container Path | Host Path | Purpose |
-|---------|---------------|-----------|---------|
-| MariaDB | `/var/lib/mysql` | `~/data/mariadb` | Database files, logs |
-| WordPress | `/var/www/html` | `~/data/wordpress` | WordPress files, uploads |
-| Nginx | `/var/www/html` | `~/data/wordpress` | Shared with WordPress |
+| Service   | Container Path   | Host Path           | Purpose                  |
+|-----------|------------------|---------------------|--------------------------|
+| MariaDB   | `/var/lib/mysql` | `~/data/mariadb`    | Database files, logs     |
+| WordPress | `/var/www/html`  | `~/data/wordpress`  | WordPress files, uploads |
+| Nginx     | `/var/www/html`  | `~/data/wordpress`  | Shared with WordPress    |
 
 ### Data Persistence Behavior
 
@@ -317,35 +348,19 @@ volumes:
 
 ### Data Management Commands
 
-#### Backup Data
-```bash
-# Backup database
-docker exec mariadb mysqldump -u root -p --all-databases > backup_$(date +%Y%m%d).sql
-
-# Backup WordPress files
-tar -czf wordpress_backup_$(date +%Y%m%d).tar.gz ~/data/wordpress/
-```
-
 #### Check Data Integrity
 ```bash
-# Check database health
-docker exec -it wordpress wp db check --allow-root
-
 # Verify file permissions
 docker exec wordpress ls -la /var/www/html
 docker exec mariadb ls -la /var/lib/mysql
 
 # Check disk usage
 du -sh ~/data/mariadb/
-du -sh ~/data/wordpress/
 ```
 
 #### Clean Data (Caution!)
 ```bash
-# Remove all data (use fclean instead)
-sudo rm -rf ~/data/mariadb/* ~/data/wordpress/*
-
-# Or use the safer Makefile target
+# use the safer Makefile target
 make fclean  # Handles permissions correctly
 ```
 
@@ -365,22 +380,6 @@ sudo chown -R $(id -u):$(id -g) ~/data/mariadb
 sudo chown -R www-data:www-data ~/data/wordpress
 ```
 
-#### Volume Mount Verification
-```bash
-# Verify mounts are working
-docker exec mariadb mount | grep mysql
-docker exec wordpress mount | grep html
-
-# Test persistence by creating test files
-docker exec mariadb touch /var/lib/mysql/test_persistence
-docker exec wordpress touch /var/www/html/test_persistence
-
-# Restart containers and check files still exist
-make down && make up
-docker exec mariadb ls /var/lib/mysql/test_persistence
-docker exec wordpress ls /var/www/html/test_persistence
-```
-
 ### 🚨 Troubleshooting Common Issues
 
 **If website is inaccessible:**
@@ -390,14 +389,3 @@ grep mpeshko.42.fr /etc/hosts
 
 # Should show: 127.0.0.1 mpeshko.42.fr
 ```
-
-### ✅ Health Check Checklist
-
-- [ ] All 3 containers running (`docker ps`)
-- [ ] Website accessible at https://mpeshko.42.fr
-- [ ] SSL certificate working (shows padlock, even if "not secure")
-- [ ] WordPress admin panel accessible
-- [ ] Both user accounts can log in
-- [ ] Comments can be added
-- [ ] Data persists after container restart
-- [ ] Data persists after VM reboot
